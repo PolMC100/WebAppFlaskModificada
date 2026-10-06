@@ -1,0 +1,26 @@
+{% macro icon(name) -%}
+{% set paths = {
+'radio': '<circle cx="12" cy="12" r="2"/><path d="M8 8a6 6 0 0 0 0 8m8-8a6 6 0 0 1 0 8M5 5a10 10 0 0 0 0 14M19 5a10 10 0 0 1 0 14"/>',
+'up': '<path d="M12 17V3m-5 5 5-5 5 5M4 17v4h16v-4"/>',
+'land': '<path d="M3 5h5m8 0h5M8 4v4h8V4M12 10v7m-3-3 3 3 3-3M4 21h16"/>',
+'crosshair': '<circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2"/><path d="M12 1v4m0 14v4M1 12h4m14 0h4"/>',
+'follow': '<path d="m3 3 7 18 3-8 8-3Z"/>',
+'route': '<circle cx="5" cy="5" r="2"/><circle cx="19" cy="19" r="2"/><path d="M7 5h9a4 4 0 0 1 0 8H8a3 3 0 0 0 0 6h9"/>',
+'clear': '<path d="M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7m4-7v7"/>',
+'check': '<path d="m5 12 4 4L19 6"/>',
+'chevron': '<path d="m6 9 6 6 6-6"/>',
+'speed': '<path d="M4 18a9 9 0 1 1 16 0M12 13l5-5M6 17h12"/><circle cx="12" cy="13" r="1"/>',
+'altitude': '<path d="M5 3v18m-3-3 3 3 3-3M2 6l3-3 3 3M12 5h8m-8 7h5m-5 7h8"/>',
+'compass': '<circle cx="12" cy="12" r="9"/><path d="m16 8-3 5-5 3 3-5Z"/>',
+'mode': '<path d="M4 6h16M4 12h16M4 18h16"/><circle cx="8" cy="6" r="2"/><circle cx="16" cy="12" r="2"/><circle cx="10" cy="18" r="2"/>',
+'flight': '<path d="M12 3v18M3 12h18M9 6l3-3 3 3M18 9l3 3-3 3M9 18l3 3 3-3M6 9l-3 3 3 3"/>',
+'map': '<path d="m3 5 6-2 6 2 6-2v16l-6 2-6-2-6 2Zm6-2v16m6-14v16"/>',
+'chart': '<path d="M3 3v18h18M7 14l4-5 4 3 6-8"/>',
+'history': '<path d="M3 12a9 9 0 1 0 9-9c-2.5 0-4.9 1-6.7 2.7L3 8M3 3v5h5M12 7v5l4 2"/>',
+'download': '<path d="M14 3H5v18h14V8ZM14 3v5h5M12 10v7m-3-3 3 3 3-3"/>',
+'latitude': '<circle cx="12" cy="12" r="9"/><path d="M4 8h16M3 12h18M4 16h16"/>',
+'longitude': '<circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="4" ry="9"/><path d="M12 3v18"/>',
+'help': '<circle cx="12" cy="12" r="9"/><path d="M9 9a3 3 0 0 1 6 0c0 2-3 2-3 4m0 4h.01"/>'
+} %}
+<svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">{{ paths[name]|safe }}</svg>
+{%- endmacro %}

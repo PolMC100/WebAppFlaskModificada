@@ -23,19 +23,27 @@
 
     function speedLabel(value) { return `${number(value, 1)} m/s`; }
 
+    function actionLabel(id, label, busy = false) {
+        const button = byId(id);
+        button.setAttribute('aria-label', label);
+        button.setAttribute('aria-busy', String(busy));
+        button.title = label;
+        button.querySelector('.action-label').textContent = label;
+    }
+
     function renderSpeed(fresh) {
         const allowed = fresh && ['connected', 'flying'].includes(state) && !pending;
         const selected = Number(byId('nav-speed').value);
         byId('nav-speed').disabled = !allowed || configuredSpeed === null || Boolean(pendingSpeed);
         byId('apply-speed').disabled = byId('nav-speed').disabled || selected === configuredSpeed;
-        byId('apply-speed').textContent = pendingSpeed ? 'Aplicando…' : 'Aplicar';
+        actionLabel('apply-speed', pendingSpeed ? 'Aplicando velocidad…' : 'Aplicar velocidad', Boolean(pendingSpeed));
         byId('nav-speed-value').textContent = speedLabel(selected);
         byId('nav-speed').setAttribute('aria-valuetext', speedLabel(selected));
         byId('speed-status').textContent = !fresh
-            ? 'Se necesita telemetría reciente para ajustar la velocidad.'
-            : configuredSpeed === null ? 'Sin velocidad configurada. Actualiza y reinicia la estación de tierra.'
-                : pendingSpeed ? `Solicitud enviada: ${speedLabel(pendingSpeed.speed)}. Esperando confirmación.`
-                    : speedFeedback || `Configurada en la estación: ${speedLabel(configuredSpeed)}${speedEdited && selected !== configuredSpeed ? ' · Cambio sin aplicar' : ''}.`;
+            ? 'Sin datos recientes.'
+            : configuredSpeed === null ? 'Esperando configuración.'
+                : pendingSpeed ? `Aplicando ${speedLabel(pendingSpeed.speed)}…`
+                    : speedFeedback ? 'Cambio sin confirmar.' : `✓ ${speedLabel(configuredSpeed)}${speedEdited && selected !== configuredSpeed ? ' · Sin aplicar' : ''}`;
     }
 
     function notice(message, tone = '') {
@@ -44,7 +52,12 @@
     }
 
     function badge(id, text, tone = '') {
-        byId(id).textContent = text;
+        const compact = { '● Datos recientes': '● En vivo', '⚠ Datos desactualizados': '⚠ Antiguos',
+            '✓ Dron conectado': '✓ Conectado', '○ Sin conexión al dron': '○ Desconectado',
+            '◌ Conectando dron': '◌ Conectando', '○ Dron desconectado': '○ Desconectado',
+            '⚠ Sin confirmación reciente': '⚠ Sin confirmar' };
+        byId(id).textContent = compact[text] || text;
+        byId(id).title = text;
         byId(id).className = `status ${tone}`;
     }
 
@@ -85,13 +98,15 @@
         const flying = droneAvailable && state === 'flying' && !pending;
         renderSpeed(fresh);
         byId('botonConectar').disabled = !serviceReady || droneAvailable || Boolean(pending);
-        byId('botonConectar').textContent = pending?.kind === 'connect' ? 'Conectando…' : droneAvailable ? 'Dron conectado' : 'Conectar dron';
+        actionLabel('botonConectar', pending?.kind === 'connect' ? 'Conectando…' : droneAvailable ? 'Dron conectado' : 'Conectar dron', pending?.kind === 'connect');
         byId('botonDespegar').disabled = !droneAvailable || state !== 'connected' || Boolean(pending);
-        byId('botonDespegar').textContent = pending?.kind === 'takeoff' || state === 'takingOff' || state === 'arming' ? 'Despegando…' : 'Despegar';
+        const takingOff = pending?.kind === 'takeoff' || state === 'takingOff' || state === 'arming';
+        actionLabel('botonDespegar', takingOff ? 'Despegando…' : 'Despegar', takingOff);
         byId('altura').disabled = Boolean(pending) || (droneAvailable && state !== 'connected');
         directions.forEach(button => { button.disabled = !flying; });
         byId('botonAterrizar').disabled = !flying;
-        byId('botonAterrizar').textContent = pending?.kind === 'land' || state === 'landing' ? 'Aterrizando…' : 'Aterrizar dron';
+        const landing = pending?.kind === 'land' || state === 'landing';
+        actionLabel('botonAterrizar', landing ? 'Aterrizando…' : 'Aterrizar dron', landing);
         byId('controls-help').textContent = flying
             ? 'Control disponible. La selección permanece hasta la siguiente solicitud.'
             : !fresh ? 'Se necesita telemetría reciente para habilitar las acciones de vuelo.'
@@ -104,7 +119,7 @@
         badge('freshness', current === 'fresh' ? '● Datos recientes' : current === 'stale' ? '⚠ Datos desactualizados' : '○ Sin datos', current === 'fresh' ? 'success' : current === 'stale' ? 'warning' : '');
         if (lastTelemetry) {
             const seconds = Math.floor((Date.now() - lastTelemetry) / 1000);
-            byId('last-update').textContent = `Última recepción hace ${seconds} s${fresh ? '' : ' · Valores de la última recepción'}.`;
+            byId('last-update').textContent = `Hace ${seconds} s${fresh ? '' : ' · Datos antiguos'}`;
         }
         if (current === 'stale' && freshness !== 'stale') {
             selectDirection();

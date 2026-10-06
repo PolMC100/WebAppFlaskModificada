@@ -11,7 +11,7 @@ Design a civil aviation tool with a professional, precise, and calm appearance. 
 
 The flight screen uses the map as the main workspace, filling the available viewport. Arrange connection controls, takeoff altitude, manual flight actions, telemetry, and map tools around its edges. Preserve a clear central area for the drone position and orientation. Artificial intelligence guidance applies when that feature is requested.
 
-This skill defines presentation and visual experience criteria. Keep its guidance focused on appearance, hierarchy, and arrangement.
+Prefer compact controls and information displays so the map remains visible. Use consistent line icons for actions: RF waves for connection, an upward arrow above a ground line for takeoff, and a drone silhouette descending toward a ground line for landing. Distinguish data download with a document silhouette and an arrow. Keep units, numeric values, and short state labels visible. This skill defines presentation and visual experience criteria; keep its guidance focused on appearance, hierarchy, and arrangement.
 
 ## Color Palette
 
@@ -50,7 +50,7 @@ Combine color with a label or icon to communicate status. Reserve red for errors
 
 Use a spacing scale of 4, 8, 12, 16, 24, 32, 40, and 48 px. As a reference, allow 16 px of horizontal padding on mobile and increase spacing on larger screens.
 
-Keep related elements closer together and leave more space between different tasks. Align headings, labels, fields, and values.
+Keep related elements closer together and leave more space between different tasks. Align headings, labels, fields, and values. In map overlays, prefer 8–12 px panel padding, short headings, and compact rows. Reduce explanatory prose and decorative headings before reducing touch targets or hiding important state information.
 
 | Resource | Guidance |
 | --- | --- |
@@ -71,24 +71,24 @@ Organize information into recognizable groups:
 3. **Manual control:** directional grid, central stop action, and accessible landing action.
 4. **Flight data:** status, altitude, and other available measurements.
 
-Emphasize one primary action per group. Keep “Stop” easy to find and distinct from directional controls. Give “Land” a stable position and a complete label to prevent confusion with stopping movement.
+Emphasize one primary action per group. Keep “Stop” easy to find and distinct from directional controls. Give “Land” a stable position and an icon clearly distinct from the central stop square. Provide its complete accessible name and a brief visible label or an accessible icon legend.
 
 The directional grid should retain its spatial arrangement of three rows and three columns. Use balanced sizes, uniform gaps, and understandable labels. A persistent selection should look different from the momentary pressed state of a button.
 
-On desktop, place compact flight controls at the left edge, telemetry at the right edge, and map tools near an available edge. These panels sit over the map with opaque surfaces and restrained shadows. Make preparation and activity details collapsible when they compete with the visible map. Preserve the 3 × 3 directional grid and a clearly labelled landing action.
+On desktop, place compact flight controls at the left edge, telemetry at the right edge, and map tools near an available edge. These panels sit over the map with opaque surfaces and restrained shadows. Make preparation and activity details collapsible when they compete with the visible map. Preserve the 3 × 3 directional grid using arrow symbols and a central stop square. Keep direction names as accessible names and descriptive tooltips. Distinguish the landing icon from stopping movement.
 
 ## Buttons and Fields
 
-- Primary action: blue background, high contrast text, and a specific label.
+- Primary action: blue background, a high contrast line icon, and a specific accessible name. Icon buttons may replace visible text when their meaning is available in descriptive tooltips and a visible, collapsible legend.
 - Secondary action: light surface with a border or emphasized text.
 - Selected direction: subtle background, persistent border or marker, and a readable label.
 - Unavailable action: subdued appearance with sufficient readability and an explanation when needed.
 - Keyboard focus: a visible outline distinguishable from selection and the pressed state.
-- Action in progress: a temporary label and a subtle indicator; avoid changing the button's size.
+- Action in progress: keep the icon, update its accessible name, and add a subtle activity marker with `aria-busy`. Avoid replacing the SVG with text or changing the button size.
 
 Reference heights: 48 px on mobile and 44 px on desktop. Touch targets should be at least 44 × 44 px; prefer 48 × 48 px for primary actions.
 
-Every field should have a visible label. Place units next to the value and help or error text below the field. Do not use placeholder text as the field's only identification.
+Fields should retain a short visible label, with a complete accessible name when needed. Pair measurement icons with short labels and visible values and units. Place validation errors beside the relevant field; move routine explanations into a collapsible guide or accessible descriptions.
 
 ## Indicators and Flight Data
 
@@ -104,7 +104,7 @@ Present statuses with consistent short text, symbols, and colors:
 
 Visually distinguish a request in progress from a completed outcome. For example, “Landing” and “Landing complete” need different labels.
 
-For telemetry, prioritize readable values and retain units. Use a stable label and value structure; avoid animating every update. Present missing data as “No data” and old data as “Outdated data,” without confusing either with a zero value.
+For telemetry, prioritize readable values and retain units. Keep latitude and longitude directly visible in the flight-data grid with labels and degree units, using the same value hierarchy as altitude; do not place coordinates in a dropdown. Use a stable label and value structure; avoid animating every update. Present missing data as “No data” and old data as “Outdated data,” without confusing either with a zero value.
 
 ## Device Adaptation
 
@@ -135,7 +135,7 @@ When these features are part of the screen:
 
 Use short transitions of 120–240 ms to open panels, show menus, and communicate status changes. Avoid decorative motion, flashes, and constant animation. Respect reduced motion preferences.
 
-Maintain sufficient contrast, visible focus, and comfortable reading when text is enlarged. Do not rely on hovering to reveal essential actions. Icons for important actions should have visible labels; other icons need accessible names.
+Maintain sufficient contrast, visible focus, and comfortable reading when text is enlarged. Do not rely on hovering to reveal essential actions. Icon controls need specific accessible names and descriptive tooltips. Provide a visible collapsible legend so their meaning can be discovered on touch devices without hover. Use local SVGs with a consistent stroke, size, and alignment. Keep the catalog shared between action buttons and the icon legend. Review geometry within the viewBox at actual display sizes, especially relative path segments and arrowheads. Decorative SVGs should be hidden from assistive technology. Preserve visible focus and the selected state of icon switches; do not communicate errors or outdated telemetry solely through color.
 
 ## Text Tone
 
@@ -151,7 +151,7 @@ When assessing a proposal, check that:
 
 - The primary action and drone status are quickly recognizable.
 - Hierarchy, colors, borders, and typography are consistent.
-- Controls and their labels are readable and distinguishable on mobile.
+- Compact icon controls remain distinguishable on mobile, have at least 44 × 44 px touch targets, and expose their meaning through accessible names and an icon legend.
 - The directional grid retains its shape and the central stop action is obvious.
 - Statuses remain understandable without relying on color.
 - There is no clipped content, overlap, or horizontal scrolling.
@@ -160,4 +160,3 @@ When assessing a proposal, check that:
 - Maps or AI features, when present, follow the same visual language.
 
 Prioritize operational clarity, accessibility, mobile usability, and consistency over decoration.
-

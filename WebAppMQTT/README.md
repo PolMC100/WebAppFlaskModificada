@@ -17,6 +17,8 @@ La página mantiene el protocolo MQTT de la estación de tierra y muestra los da
 - En móvil y tablet compacta, la barra **Vuelo / Datos / Mapa** abre un panel a la vez. Pulsar de nuevo la opción activa oculta el panel. La preparación del vuelo y el registro de actividad se pueden desplegar; los paneles tienen desplazamiento propio cuando falta espacio.
 - Al centrar o seguir al dron se calcula el espacio visible entre los paneles para mantener su posición a la vista. El diseño respeta áreas seguras del dispositivo y vistas apaisadas de poca altura.
 - Diseño en español, adaptable a móvil, con navegación mediante teclado y foco visible.
+- Controles compactos con iconos SVG locales: ondas RF para conectar, flecha ascendente para despegar, dron descendiendo al suelo para aterrizar, diana para centrar, ruta para trayectoria y documento con flecha para exportar. Todos tienen nombres accesibles y títulos descriptivos; **Guía de iconos** ofrece una leyenda desplegable para dispositivos táctiles.
+- Telemetría con etiquetas breves, valores y unidades visibles. Latitud y longitud se muestran siempre en la cuadrícula de datos, con grados y seis decimales cuando hay datos válidos. La actividad se despliega cuando hace falta. Los botones conservan sus iconos durante las solicitudes y muestran un indicador de operación pendiente.
 - Estado del servicio MQTT separado del estado del dron.
 - Solicitudes de conexión, despegue y aterrizaje diferenciadas de sus resultados confirmados. `landing` significa aterrizaje en curso; el estado posterior `connected` confirma que está en tierra.
 - Telemetría marcada como desactualizada tras 10 segundos sin recepción o al perder la comunicación. Los valores anteriores permanecen identificados como datos de la última recepción.
@@ -33,6 +35,8 @@ La página mantiene el protocolo MQTT de la estación de tierra y muestra los da
 - Aviso si no se confirma una conexión en 15 segundos o una operación de vuelo en 60 segundos. El aviso no cancela la operación del dron.
 
 Los estilos y la lógica están en `app/static/css/control.css` y `app/static/js/control.js`. La composición del espacio de trabajo está en `app/static/css/workspace.css`, y la navegación de paneles en `app/static/js/workspace.js`. La integración del mapa está en `app/static/js/flight-map.js` y utiliza Leaflet 1.9.4 desde CDN. La plantilla usa las rutas estáticas de Flask y requiere servirse desde la aplicación. El mapa base requiere conexión a internet y mantiene visible la atribución a OpenStreetMap.
+
+La presentación compacta se define en `app/static/css/compact.css`. El catálogo compartido de iconos está en `app/templates/macros/icons.html`, sin una librería de iconos externa.
 
 La comunicación del navegador utiliza `wss://broker.hivemq.com:8884/mqtt`. Se conservan los topics `mobileFlask/demoDash/*` y `demoDash/mobileFlask/telemetryInfo` para ser compatibles con la estación actual. La librería MQTT del navegador se carga desde el CDN existente y requiere conexión a internet.
 

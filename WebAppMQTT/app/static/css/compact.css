@@ -1,0 +1,87 @@
+.sr-only { position: absolute !important; width: 1px !important; height: 1px !important; padding: 0 !important; margin: -1px !important; overflow: hidden !important; clip-path: inset(50%) !important; white-space: nowrap !important; border: 0 !important; }
+.ui-icon { width: 20px; height: 20px; flex-shrink: 0; display: inline-block; vertical-align: middle; overflow: visible; }
+.compact-workspace .shell { padding: 12px; gap: 8px; }
+.compact-workspace .page-header { padding: 8px 12px; }
+.compact-workspace .compact-brand { display: flex; align-items: center; gap: 8px; }
+.compact-workspace h1 { font-size: 18px; }
+.compact-workspace .status { font-size: 12px; padding: 4px 6px; }
+.compact-workspace .notice { font-size: 12px; padding: 6px 10px; max-width: 640px; }
+.compact-workspace .dashboard { grid-template-columns: 208px minmax(0, 1fr) 220px; gap: 12px; }
+.compact-workspace .panel { padding: 10px; border-radius: 8px; }
+.compact-workspace .controls, .compact-workspace .flight-data { gap: 8px; }
+.compact-workspace .section-heading { margin-bottom: 6px; }
+.compact-workspace h2 { font-size: 14px; }
+.compact-workspace summary { font-size: 13px; display: flex; align-items: center; gap: 8px; min-height: 44px; }
+.compact-workspace summary::marker { content: ''; }
+.compact-workspace summary::-webkit-details-marker { display: none; }
+.compact-workspace summary > .ui-icon:last-child { margin-left: auto; width: 16px; height: 16px; color: var(--muted); transform-origin: center; transition: transform 160ms; }
+.compact-workspace details[open] > summary > .ui-icon:last-child { transform: rotate(180deg); }
+.compact-workspace details.panel { padding: 2px 10px; }
+.compact-workspace .preparation-content, .compact-workspace .activity-content { padding: 4px 0 8px; }
+.compact-workspace .icon-button { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; width: 44px; height: 44px; min-height: 44px; min-width: 44px; padding: 0; position: relative; }
+.compact-workspace .icon-button[aria-busy="true"]::after { content: ''; position: absolute; width: 8px; height: 8px; right: 3px; top: 3px; border-radius: 50%; background: #0891b2; border: 1px solid white; animation: pending-pulse 1s ease-in-out infinite alternate; }
+.compact-workspace .controls .primary { width: 44px; }
+.compact-workspace .takeoff-form { display: flex; align-items: end; gap: 6px; border: 0; margin: 0; padding: 0; flex-wrap: wrap; }
+.compact-workspace .altitude-field { flex: 1; min-width: 64px; }
+.compact-workspace .altitude-field label { font-size: 12px; margin: 0 0 4px; }
+.compact-workspace .input-unit input { min-height: 44px; padding: 8px; font-size: 14px; }
+.compact-workspace .input-unit span { padding: 0 6px 0 0; font-size: 12px; }
+.compact-workspace .field-error { font-size: 12px; margin: 6px 0 0; flex-basis: 100%; }
+.compact-workspace .direction { gap: 4px; margin: 8px 0; }
+.compact-workspace .direction button { min-height: 44px; padding: 0; }
+.compact-workspace .direction button > span:first-child { font-size: 22px; }
+.compact-workspace .speed-selector { margin: 8px 0 0; padding-top: 8px; }
+.compact-workspace .speed-heading label { display: flex; align-items: center; gap: 4px; font-size: 12px; }
+.compact-workspace .speed-heading .ui-icon { width: 16px; height: 16px; }
+.compact-workspace .speed-heading output { font-size: 12px; }
+.compact-workspace .speed-input-row { gap: 6px; margin: 0; }
+.compact-workspace .speed-input-row input { height: 44px; }
+.compact-workspace .speed-input-row .icon-button { min-width: 44px; padding: 0; }
+.compact-workspace #speed-status { font-size: 12px; margin: 0; }
+.compact-workspace .landing-row { flex-direction: row; justify-content: space-between; align-items: center; margin: 8px 0 0; padding: 6px 0 0; }
+.compact-workspace .landing-row .button { width: 44px; }
+.compact-workspace .landing-row > .help { font-size: 12px; }
+.compact-workspace .flight-state { padding: 8px; gap: 2px; }
+.compact-workspace .flight-state strong { font-size: 16px; }
+.compact-workspace #last-update { font-size: 11px; }
+.compact-workspace .metrics > div { padding: 8px 4px 8px 0; }
+.compact-workspace .metrics dt { display: flex; align-items: center; gap: 4px; font-size: 11px; }
+.compact-workspace .metrics dt .ui-icon { width: 16px; height: 16px; }
+.compact-workspace .metrics dd { font-size: 20px; margin-top: 4px; }
+.compact-workspace .metrics small { font-size: 12px; }
+.compact-workspace .metrics .text-value { font-size: 13px; padding-top: 4px; }
+.compact-workspace .metrics .coordinate-metric { grid-column: 1 / -1; }
+.compact-workspace .metrics .coordinate-metric dd { font-size: 20px; line-height: 1.5; white-space: nowrap; }
+.compact-workspace .coordinates { margin: 0 0 8px; }
+.compact-workspace .coordinates > div { padding-top: 6px; font-size: 12px; }
+.compact-workspace .map-panel { width: fit-content; max-width: 100%; padding: 8px; }
+.compact-workspace .map-actions { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+.compact-workspace .icon-toggle { position: relative; display: inline-flex; align-items: center; justify-content: center; width: 44px; min-height: 44px; border: 1px solid var(--border); border-radius: 8px; background: white; }
+.compact-workspace .icon-toggle input { position: absolute; inset: 0; margin: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+.compact-workspace .icon-toggle:has(input:checked) { background: #eff6ff; border-color: #2563eb; color: #1d4ed8; }
+.compact-workspace .icon-toggle:has(input:disabled) { background: #eef0f3; border-color: var(--border); color: var(--muted); }
+.compact-workspace .icon-toggle:focus-within { outline: 3px solid #0891b2; outline-offset: 3px; }
+.compact-workspace .icon-toggle:has(input:checked)::after { content: ''; position: absolute; right: 4px; bottom: 4px; width: 5px; height: 5px; border-radius: 50%; background: currentColor; pointer-events: none; }
+.compact-workspace .icon-guide dl { margin: 0 0 8px; }
+.compact-workspace .icon-guide dl > div { display: flex; align-items: center; gap: 8px; padding: 4px 0; }
+.compact-workspace .icon-guide dd { font-size: 12px; margin: 0; }
+.compact-workspace .icon-guide dt { width: 24px; text-align: center; color: #1d4ed8; }
+.compact-workspace .leaflet-top.leaflet-left { top: 112px; left: 232px; }
+.compact-workspace .activity-log li { font-size: 12px; padding: 8px 0; gap: 8px; grid-template-columns: 58px minmax(0, 1fr); }
+.compact-workspace .mobile-dock { width: fit-content; max-width: 100%; }
+.compact-workspace .mobile-dock button { width: 52px; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
+@keyframes pending-pulse { from { opacity: .45; } to { opacity: 1; } }
+@media (max-width: 1023px) {
+    .compact-workspace .shell { padding: max(8px, env(safe-area-inset-top)) 8px max(32px, env(safe-area-inset-bottom)); }
+    .compact-workspace .dashboard { display: block; }
+    .compact-workspace h1 { font-size: 16px; }
+    .compact-workspace .controls, .compact-workspace .flight-data { width: min(100%, 280px); max-height: min(56dvh, 440px); }
+    .compact-workspace[data-mobile-panel="map"] .map-panel { width: fit-content; max-width: 100%; padding: 8px; }
+    .compact-workspace .leaflet-top.leaflet-left { top: 112px; left: 2px; }
+    .compact-workspace .direction button { min-height: 44px; }
+}
+@media (max-height: 500px) and (max-width: 1023px) {
+    .compact-workspace .controls, .compact-workspace .flight-data { width: min(48%, 248px); max-height: 100%; margin: 0; }
+    .compact-workspace[data-mobile-panel="map"] .map-panel { max-width: 48%; margin: 0; }
+}
+@media (prefers-reduced-motion: reduce) { .compact-workspace .icon-button[aria-busy="true"]::after { animation: none; } }

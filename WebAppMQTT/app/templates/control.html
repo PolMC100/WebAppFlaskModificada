@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#F4F6F8">
+    <title>Control de vuelo · Estación de drones</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/control.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/workspace.css') }}">
+    <script defer src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/mqtt/dist/mqtt.min.js"></script>
+    <script defer src="{{ url_for('static', filename='js/flight-map.js') }}"></script>
+    <script defer src="{{ url_for('static', filename='js/control.js') }}"></script>
+    <script defer src="{{ url_for('static', filename='js/workspace.js') }}"></script>
+</head>
+<body class="map-workspace" data-mobile-panel="flight">
+<a class="skip-link" href="#preparacion">Ir a los controles</a>
+<div id="flight-map" class="flight-map" role="region" aria-label="Mapa de posición del dron, orientado al norte" aria-describedby="map-description"></div>
+<div class="shell">
+    <header class="page-header">
+        <div><p class="eyebrow">Estación de drones</p><h1>Control de vuelo</h1><p class="subtitle">Posición, orientación y control en tiempo real.</p></div>
+        <div class="connection"><span id="connection-status" class="status" role="status">○ Sin conexión</span><span id="broker-status" class="secondary">Conectando con el servicio…</span></div>
+    </header>
+    <div id="notice" class="notice" role="status" aria-live="polite">Activa las peticiones externas en la estación de tierra y conecta el dron.</div>
+    <main class="dashboard">
+        <div class="controls" id="flight-controls" aria-label="Controles de vuelo">
+            <details class="panel preparation-panel" id="preparacion" tabindex="-1" open>
+                <summary class="preparation-summary">Conexión y despegue</summary>
+                <div class="preparation-content">
+                <div class="section-heading"><div><p class="eyebrow">01 · Preparación</p><h2 id="preparation-title">Conexión y despegue</h2></div><span class="section-icon" aria-hidden="true">↗</span></div>
+                <button type="button" id="botonConectar" class="button primary" disabled>Conectar dron</button>
+                <form id="takeoff-form" class="takeoff-form" novalidate>
+                    <label for="altura">Altitud de despegue</label>
+                    <div class="input-unit"><input type="number" id="altura" name="altura" min="1" step="1" value="3" required aria-describedby="altitude-help altitude-error"><span>m</span></div>
+                    <p id="altitude-help" class="help">Introduce una altitud positiva en metros enteros.</p>
+                    <p id="altitude-error" class="field-error" role="alert" hidden></p>
+                    <button type="submit" id="botonDespegar" class="button primary" disabled>Despegar</button>
+                </form>
+                </div>
+            </details>
+            <section class="panel" aria-labelledby="manual-title">
+                <div class="section-heading"><div><p class="eyebrow">02 · Movimiento</p><h2 id="manual-title">Control manual</h2></div><span class="section-icon" aria-hidden="true">✥</span></div>
+                <p class="help">Selecciona una dirección geográfica. Pulsa Detener para frenar el movimiento.</p>
+                <div class="direction" role="group" aria-label="Direcciones de vuelo">
+                    <button type="button" data-direction="NorthWest" aria-pressed="false" disabled><span aria-hidden="true">↖</span><span>Noroeste</span></button>
+                    <button type="button" data-direction="North" aria-pressed="false" disabled><span aria-hidden="true">↑</span><span>Norte</span></button>
+                    <button type="button" data-direction="NorthEast" aria-pressed="false" disabled><span aria-hidden="true">↗</span><span>Noreste</span></button>
+                    <button type="button" data-direction="West" aria-pressed="false" disabled><span aria-hidden="true">←</span><span>Oeste</span></button>
+                    <button type="button" class="stop" data-direction="Stop" aria-pressed="false" disabled><span aria-hidden="true">■</span><span>Detener</span></button>
+                    <button type="button" data-direction="East" aria-pressed="false" disabled><span aria-hidden="true">→</span><span>Este</span></button>
+                    <button type="button" data-direction="SouthWest" aria-pressed="false" disabled><span aria-hidden="true">↙</span><span>Suroeste</span></button>
+                    <button type="button" data-direction="South" aria-pressed="false" disabled><span aria-hidden="true">↓</span><span>Sur</span></button>
+                    <button type="button" data-direction="SouthEast" aria-pressed="false" disabled><span aria-hidden="true">↘</span><span>Sureste</span></button>
+                </div>
+                <p id="direction-status" class="help">Sin dirección solicitada.</p>
+                <form id="speed-form" class="speed-selector">
+                    <div class="speed-heading"><label for="nav-speed">Velocidad manual</label><output id="nav-speed-value" for="nav-speed">5,0 m/s</output></div>
+                    <div class="speed-input-row"><input type="range" id="nav-speed" min="0.5" max="5" step="0.5" value="5" disabled aria-describedby="speed-help speed-status"><button type="submit" id="apply-speed" class="button" disabled>Aplicar</button></div>
+                    <p id="speed-help" class="help">0,5–5 m/s · Velocidad horizontal solicitada.</p>
+                    <p id="speed-status" class="help" role="status">Esperando la velocidad configurada en la estación.</p>
+                </form>
+                <div class="landing-row"><div><strong>Finalizar vuelo</strong><p class="help">Descenso y aterrizaje en la posición actual.</p></div><button type="button" id="botonAterrizar" class="button" disabled>Aterrizar dron</button></div>
+                <p id="controls-help" class="help">El control manual estará disponible cuando el dron esté en vuelo.</p>
+            </section>
+        </div>
+            <section class="panel map-panel" id="map-tools" aria-labelledby="map-title">
+                <div class="section-heading"><div><p class="eyebrow">Posición y orientación</p><h2 id="map-title">Mapa de vuelo</h2></div><span id="map-status" class="status" role="status">○ Sin posición</span></div>
+                <div class="map-toolbar">
+                    <button type="button" id="center-drone" class="button" disabled>Centrar en el dron</button>
+                    <label class="map-toggle"><input type="checkbox" id="follow-drone" role="switch" checked disabled><span>Seguir dron</span></label>
+                </div>
+
+                <p id="map-description" class="help map-description">Esperando una posición válida. El mapa mantiene el norte arriba.</p>
+                <p id="map-tile-error" class="field-error" role="status" hidden>No se pudo cargar parte del mapa base. La posición del dron sigue disponible cuando hay telemetría.</p>
+                <div class="trajectory-toolbar">
+                    <label class="map-toggle"><input type="checkbox" id="show-trajectory" role="switch" disabled aria-describedby="trajectory-help"><span>Mostrar trayectoria</span></label>
+                    <button type="button" id="clear-trajectory" class="text-button" disabled>Limpiar trayectoria</button>
+                </div>
+                <p id="trajectory-help" class="help">Desactivada. Actívala para registrar y mostrar el recorrido desde ese momento.</p>
+            </section>
+        <aside class="flight-data" id="flight-information" aria-label="Información de vuelo">
+
+            <section class="panel" aria-labelledby="telemetry-title">
+                <div class="section-heading"><div><p class="eyebrow">03 · Telemetría</p><h2 id="telemetry-title">Datos de vuelo</h2></div><span id="freshness" class="status">○ Sin datos</span></div>
+                <div class="flight-state"><span class="secondary">Estado del dron</span><strong id="flight-state">Sin datos</strong><span id="last-update" class="help">Esperando telemetría de la estación de tierra.</span></div>
+                <dl class="metrics">
+                    <div><dt>Altitud relativa</dt><dd><span id="alt">—</span> <small>m</small></dd></div>
+                    <div><dt>Velocidad terrestre</dt><dd><span id="speed">—</span> <small>m/s</small></dd></div>
+                    <div><dt>Rumbo</dt><dd><span id="heading">—</span> <small>°</small></dd></div>
+                    <div><dt>Modo de vuelo</dt><dd id="flight-mode" class="text-value">Sin datos</dd></div>
+                </dl>
+                <dl class="coordinates"><div><dt>Latitud</dt><dd id="latitude">Sin datos</dd></div><div><dt>Longitud</dt><dd id="longitude">Sin datos</dd></div></dl>
+                <p class="help">Los valores proceden del dron. La dirección seleccionada indica una solicitud enviada.</p>
+            </section>
+            <details class="panel activity-panel">
+                <summary>Registro de actividad</summary>
+                <div class="activity-content">
+                <div class="section-heading"><div><p class="eyebrow">Sesión actual</p><h2 id="activity-title">Registro de actividad</h2></div><button type="button" id="export-log" class="text-button" disabled>Exportar CSV</button></div>
+                <p class="help">Conexiones, solicitudes y cambios de estado. Se conservan los últimos 100 eventos en esta página.</p>
+                <ol id="activity-log" class="activity-log"><li class="empty-log">Todavía no hay actividad.</li></ol>
+                </div>
+            </details>
+        </aside>
+    </main>
+    <nav class="mobile-dock" aria-label="Paneles de vuelo">
+        <button type="button" data-panel="flight" aria-controls="flight-controls" aria-expanded="true">Vuelo</button>
+        <button type="button" data-panel="data" aria-controls="flight-information" aria-expanded="false">Datos</button>
+        <button type="button" data-panel="map" aria-controls="map-tools" aria-expanded="false">Mapa</button>
+    </nav>
+    <footer>Estación de tierra · Control mediante MQTT <span>Las acciones se confirman con la telemetría recibida.</span></footer>
+</div>
+</body>
+</html>

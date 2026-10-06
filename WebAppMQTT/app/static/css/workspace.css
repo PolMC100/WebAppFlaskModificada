@@ -1,0 +1,99 @@
+/* The map is the workspace; panels occupy its edges. */
+.map-workspace { height: 100vh; height: 100dvh; overflow: hidden; }
+.map-workspace > .flight-map { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; border-radius: 0; z-index: 0; }
+.map-workspace .shell { position: relative; z-index: 1; max-width: none; height: 100%; margin: 0; padding: 16px; display: grid; grid-template-rows: auto auto minmax(0, 1fr) auto; gap: 12px; pointer-events: none; }
+.map-workspace .page-header { margin: 0; padding: 12px 20px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; pointer-events: auto; box-shadow: 0 2px 8px #17202a0d; }
+.map-workspace h1 { margin: 0; font-size: 24px; }
+.map-workspace .page-header .eyebrow { font-size: 12px; }
+.map-workspace .subtitle { font-size: 14px; margin-top: 4px; }
+.map-workspace .connection { gap: 4px; }
+.map-workspace .notice { width: fit-content; max-width: 100%; margin: 0; padding: 10px 16px; pointer-events: auto; box-shadow: 0 2px 8px #17202a0d; }
+.map-workspace .dashboard { display: grid; grid-template-columns: 288px minmax(0, 1fr) 288px; gap: 16px; min-height: 0; align-items: start; }
+.map-workspace .controls, .map-workspace .flight-data { gap: 12px; max-height: 100%; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; padding: 3px; margin: -3px; pointer-events: auto; }
+.map-workspace .controls { grid-column: 1; grid-row: 1; }
+.map-workspace .flight-data { grid-column: 3; grid-row: 1; }
+.map-workspace .panel { padding: 16px; border-radius: 10px; box-shadow: 0 2px 8px #17202a14; }
+.map-workspace .section-heading { margin-bottom: 12px; gap: 8px; }
+.map-workspace h2 { font-size: 18px; }
+.map-workspace .eyebrow { font-size: 12px; }
+.map-workspace .section-icon { font-size: 24px; }
+.map-workspace .help { font-size: 13px; }
+.map-workspace .direction { margin: 12px 0 8px; gap: 6px; }
+.map-workspace .direction button { min-height: 64px; font-size: 12px; gap: 4px; }
+.map-workspace .direction button > span:first-child { font-size: 22px; }
+.map-workspace .landing-row { display: flex; flex-direction: column; align-items: stretch; gap: 8px; margin: 12px 0 8px; padding: 12px 0 8px; position: sticky; bottom: 0; z-index: 2; background: var(--surface); }
+.map-workspace .landing-row .help { margin-top: 2px; }
+.map-workspace .landing-row .button { width: 100%; }
+.map-workspace .takeoff-form { margin-top: 12px; padding-top: 12px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; }
+.map-workspace .takeoff-form label, .map-workspace .takeoff-form .help, .map-workspace .takeoff-form .field-error { grid-column: 1 / -1; margin: 0; }
+.map-workspace .takeoff-form label { font-size: 14px; }
+.map-workspace .takeoff-form .button { grid-column: 2; grid-row: 2; padding-inline: 8px; }
+.map-workspace summary { cursor: pointer; font-weight: 600; min-height: 44px; align-content: center; font-size: 16px; }
+.map-workspace details.panel { padding-block: 8px; }
+.map-workspace .preparation-content, .map-workspace .activity-content { padding: 8px 0; }
+.map-workspace .preparation-content .section-heading { display: none; }
+.map-workspace .flight-state { padding: 12px; }
+.map-workspace .flight-state strong { font-size: 20px; }
+.map-workspace .metrics > div { padding: 12px 8px 12px 0; }
+.map-workspace .metrics dd { font-size: 24px; }
+.map-workspace .metrics .text-value { font-size: 16px; }
+.map-workspace .coordinates { margin-bottom: 12px; }
+.map-workspace .coordinates > div { padding-top: 12px; font-size: 14px; }
+.map-workspace .activity-log { max-height: 200px; }
+.map-workspace .map-panel { grid-column: 2; grid-row: 1; justify-self: center; align-self: end; width: min(100%, 400px); max-height: 100%; overflow-y: auto; pointer-events: auto; }
+.map-workspace .map-toolbar { justify-content: flex-start; gap: 8px 12px; margin-bottom: 0; }
+.map-workspace .map-toolbar .button { padding: 8px 12px; font-size: 14px; }
+.map-workspace .map-toggle { font-size: 13px; }
+.map-workspace .trajectory-toolbar { margin-top: 8px; padding-top: 8px; gap: 4px 8px; }
+.map-workspace .map-description { margin-top: 8px; }
+.map-workspace footer { margin: 0; width: fit-content; max-width: 100%; border-radius: 6px; padding: 4px 8px; background: var(--surface); font-size: 11px; }
+.map-workspace footer span { display: none; }
+.mobile-dock { display: none; }
+.speed-selector { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); }
+.speed-heading { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.speed-heading label { margin: 0; font-size: 14px; }
+.speed-heading output { font-size: 14px; font-weight: 600; color: #1d4ed8; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.speed-input-row { display: flex; align-items: center; gap: 12px; margin: 4px 0; }
+.speed-input-row input { min-width: 0; width: 100%; height: 48px; margin: 0; accent-color: var(--blue); cursor: pointer; }
+.speed-input-row input:disabled { cursor: not-allowed; }
+.speed-input-row button { min-width: 104px; padding: 8px; font-size: 14px; }
+.speed-selector .help { margin-top: 4px; }
+.map-workspace .leaflet-top.leaflet-left { top: 144px; left: 320px; }
+.map-workspace .leaflet-control-attribution { max-width: calc(100vw - 16px); }
+.map-workspace .skip-link { pointer-events: auto; z-index: 10; }
+@media (min-width: 1440px) {
+    .map-workspace .shell { padding: 24px; gap: 16px; }
+    .map-workspace .dashboard { grid-template-columns: 320px minmax(0, 1fr) 304px; gap: 24px; }
+    .map-workspace .leaflet-top.leaflet-left { top: 160px; left: 368px; }
+}
+@media (max-width: 1023px) {
+    .map-workspace .shell { padding: max(12px, env(safe-area-inset-top)) 12px max(40px, env(safe-area-inset-bottom)); gap: 8px; grid-template-rows: auto auto minmax(0, 1fr) auto; }
+    .map-workspace .page-header { padding: 10px 12px; flex-direction: row; align-items: center; gap: 12px; }
+    .map-workspace h1 { font-size: 20px; }
+    .map-workspace .subtitle, .map-workspace .page-header .eyebrow { display: none; }
+    .map-workspace .connection { align-items: flex-end; min-width: 0; flex-shrink: 1; }
+    .map-workspace #broker-status { font-size: 11px; text-align: right; }
+    .map-workspace .connection .status { font-size: 12px; }
+    .map-workspace .notice { font-size: 12px; padding: 8px 12px; max-height: 80px; overflow: auto; }
+    .map-workspace .dashboard { display: block; position: relative; }
+    .map-workspace .controls, .map-workspace .flight-data, .map-workspace .map-panel { display: none; position: absolute; inset: auto 0 0; width: min(100%, 440px); margin: 0 auto; max-height: min(52dvh, 480px); overflow-y: auto; overscroll-behavior: contain; padding: 3px; }
+    .map-workspace[data-mobile-panel="flight"] .controls, .map-workspace[data-mobile-panel="data"] .flight-data { display: grid; gap: 8px; }
+    .map-workspace[data-mobile-panel="map"] .map-panel { display: block; padding: 16px; }
+    .map-workspace .direction button { min-height: 56px; }
+    .map-workspace .controls > section > .help:first-of-type { display: none; }
+    .map-workspace .landing-row > div { display: none; }
+    .map-workspace .landing-row { margin-top: 8px; padding-top: 8px; }
+    .mobile-dock { display: flex; gap: 4px; width: min(100%, 440px); margin: 0 auto; padding: 4px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; pointer-events: auto; box-shadow: 0 2px 8px #17202a14; }
+    .mobile-dock button { flex: 1; min-width: 0; min-height: 48px; background: white; border: 1px solid transparent; border-radius: 6px; color: var(--muted); font-weight: 600; }
+    .mobile-dock button[aria-expanded="true"] { color: #1d4ed8; background: #eff6ff; border-color: #bfdbfe; }
+    .map-workspace footer { display: none; }
+    .map-workspace .leaflet-top.leaflet-left { top: 144px; left: 2px; }
+}
+@media (max-width: 390px) {
+    .map-workspace h1 { font-size: 18px; }
+    .map-workspace #broker-status { max-width: 140px; }
+}
+@media (max-height: 500px) and (max-width: 1023px) {
+    .map-workspace .controls, .map-workspace .flight-data, .map-workspace .map-panel { inset: 0 0 auto auto; width: min(50%, 360px); max-height: 100%; margin: 0; }
+    .map-workspace .leaflet-top.leaflet-left { top: 112px; }
+}

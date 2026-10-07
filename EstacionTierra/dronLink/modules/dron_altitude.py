@@ -5,6 +5,8 @@ import threading
 
 def _change_altitude(self, altitude, callback=None, params = None):
     # Change the altitude of the vehicle while flying
+    # Evitar que el bucle de velocidad sobrescriba el destino de altitud.
+    self._stopGo()
     self.reaching_waypoint = True
     self.vehicle.mav.send(
         mavutil.mavlink.MAVLink_set_position_target_global_int_message(1, self.vehicle.target_system,

@@ -1,6 +1,6 @@
 {% from 'macros/icons.html' import icon %}
-{% macro action(id, name, symbol, primary=false, submit=false) -%}
-<button type="{{ 'submit' if submit else 'button' }}" id="{{ id }}" class="button icon-button{{ ' primary' if primary else '' }}" aria-label="{{ name }}" title="{{ name }}" disabled>{{ icon(symbol) }}<span class="sr-only action-label">{{ name }}</span></button>
+{% macro action(id, name, symbol, primary=false, submit=false, labeled=false) -%}
+<button type="{{ 'submit' if submit else 'button' }}" id="{{ id }}" class="button icon-button{{ ' primary' if primary else '' }}{{ ' text-action' if labeled else '' }}" aria-label="{{ name }}" title="{{ name }}" disabled>{{ icon(symbol) }}<span class="{{ '' if labeled else 'sr-only ' }}action-label">{{ name }}</span></button>
 {%- endmacro %}
 <!DOCTYPE html>
 <html lang="es">
@@ -30,23 +30,21 @@
     <div id="notice" class="notice" role="status" aria-live="polite">Activa las peticiones externas y conecta el dron.</div>
     <main class="dashboard">
         <div class="controls" id="flight-controls" aria-label="Controles de vuelo">
-            <details class="panel preparation-panel" id="preparacion" tabindex="-1" open>
-                <summary class="preparation-summary">{{ icon('radio') }}<span>Preparación</span>{{ icon('chevron') }}</summary>
-                <div class="preparation-content">
-                    <form id="takeoff-form" class="takeoff-form" novalidate>
-                        {{ action('botonConectar', 'Conectar dron', 'radio', true) }}
-                        <div class="altitude-field"><label for="altura">Altitud</label><div class="input-unit"><input type="number" id="altura" name="altura" min="1" step="1" value="3" required aria-describedby="altitude-help altitude-error"><span>m</span></div></div>
-                        {{ action('botonDespegar', 'Despegar', 'up', true, true) }}
-                        <p id="altitude-help" class="sr-only">Altitud de despegue: metros enteros mayores que cero.</p>
-                        <p id="altitude-error" class="field-error" role="alert" hidden></p>
-                    </form>
-                </div>
-            </details>
-            <section class="panel" aria-labelledby="manual-title">
+            <section class="panel unified-flight-panel" id="preparacion" tabindex="-1" aria-labelledby="manual-title">
                 <div class="section-heading"><h2 id="manual-title">Vuelo</h2>{{ icon('flight') }}</div>
-                <div class="direction" role="group" aria-label="Direcciones geográficas de vuelo">
-                    {% for direction, symbol, name in [('NorthWest','↖','Noroeste'),('North','↑','Norte'),('NorthEast','↗','Noreste'),('West','←','Oeste'),('Stop','■','Detener'),('East','→','Este'),('SouthWest','↙','Suroeste'),('South','↓','Sur'),('SouthEast','↘','Sureste')] %}
-                    <button type="button" data-direction="{{ direction }}" class="{{ 'stop' if direction == 'Stop' else '' }}" aria-label="{{ name }}" title="{{ name }}" aria-pressed="false" disabled><span aria-hidden="true">{{ symbol }}</span><span class="sr-only">{{ name }}</span></button>
+                    <form id="takeoff-form" class="takeoff-form" novalidate>
+                        {{ action('botonConectar', 'Conectar', 'radio', true, labeled=true) }}
+                        {{ action('botonDespegar', 'Despegar', 'up', true, true, labeled=true) }}
+                    </form>
+                    <form id="altitude-form" class="altitude-selector" novalidate>
+                        <div class="altitude-field"><label for="altura">Altitud</label><div class="input-unit"><input type="number" id="altura" name="altura" min="1" step="1" value="3" required disabled aria-describedby="altitude-help altitude-error altitude-status"><span>m</span></div>{{ action('apply-altitude', 'Aplicar altitud', 'check', false, true) }}</div>
+                        <p id="altitude-help" class="sr-only">Altitud relativa en vuelo: metros enteros mayores que cero. Aplicar detiene el desplazamiento horizontal.</p>
+                        <p id="altitude-error" class="field-error" role="alert" hidden></p>
+                        <p id="altitude-status" class="help" role="status">Disponible en vuelo.</p>
+                    </form>
+                <div class="direction wind-rose" role="group" aria-label="Rosa de los vientos: direcciones geográficas de vuelo, norte arriba">
+                    {% for direction, bearing, name in [('North','N','Norte'),('NorthEast','NE','Noreste'),('East','E','Este'),('SouthEast','SE','Sureste'),('South','S','Sur'),('SouthWest','SO','Suroeste'),('West','O','Oeste'),('NorthWest','NO','Noroeste'),('Stop','','Detener')] %}
+                    <button type="button" data-direction="{{ direction }}" class="{{ 'stop' if direction == 'Stop' else 'compass-direction' }}" aria-label="{{ name }}" title="{{ name }}" aria-pressed="false" disabled><span class="compass-needle" aria-hidden="true">{{ icon('pause') if direction == 'Stop' else icon('compass-point') }}</span>{% if bearing %}<span class="compass-bearing" aria-hidden="true">{{ bearing }}</span>{% endif %}<span class="sr-only">{{ name }}</span></button>
                     {% endfor %}
                 </div>
                 <p id="direction-status" class="sr-only">Sin dirección solicitada.</p>
@@ -56,11 +54,11 @@
                     <p id="speed-help" class="sr-only">0,5–5 m/s. Velocidad horizontal solicitada.</p>
                     <p id="speed-status" class="help" role="status">Esperando configuración.</p>
                 </form>
-                <div class="landing-row"><span class="help">Aterrizaje</span>{{ action('botonAterrizar', 'Aterrizar dron', 'land') }}</div>
+                <div class="landing-row">{{ action('botonAterrizar', 'Aterrizar', 'land', labeled=true) }}</div>
                 <p id="controls-help" class="sr-only">El control manual estará disponible cuando el dron esté en vuelo.</p>
             </section>
             <details class="panel icon-guide"><summary title="Significado de los iconos">{{ icon('help') }}<span>Guía de iconos</span>{{ icon('chevron') }}</summary><dl>
-                <div><dt>{{ icon('radio') }}</dt><dd>Conectar dron</dd></div><div><dt>{{ icon('up') }}</dt><dd>Despegar</dd></div><div><dt>{{ icon('land') }}</dt><dd>Aterrizar</dd></div><div><dt>■</dt><dd>Detener movimiento</dd></div><div><dt>{{ icon('check') }}</dt><dd>Aplicar velocidad</dd></div><div><dt>{{ icon('crosshair') }}</dt><dd>Centrar mapa</dd></div><div><dt>{{ icon('follow') }}</dt><dd>Seguir al dron</dd></div><div><dt>{{ icon('route') }}</dt><dd>Trayectoria on/off</dd></div><div><dt>{{ icon('clear') }}</dt><dd>Limpiar trayectoria</dd></div><div><dt>{{ icon('download') }}</dt><dd>Exportar registro CSV</dd></div><div><dt>{{ icon('flight') }}</dt><dd>Panel de vuelo</dd></div><div><dt>{{ icon('chart') }}</dt><dd>Panel de datos</dd></div><div><dt>{{ icon('map') }}</dt><dd>Herramientas del mapa</dd></div>
+                <div><dt>{{ icon('radio') }}</dt><dd>Conectar dron</dd></div><div><dt>{{ icon('up') }}</dt><dd>Despegar</dd></div><div><dt>{{ icon('land') }}</dt><dd>Aterrizar</dd></div><div><dt>{{ icon('pause') }}</dt><dd>Detener movimiento</dd></div><div><dt>{{ icon('check') }}</dt><dd>Aplicar altitud o velocidad</dd></div><div><dt>{{ icon('crosshair') }}</dt><dd>Centrar mapa</dd></div><div><dt>{{ icon('follow') }}</dt><dd>Seguir al dron</dd></div><div><dt>{{ icon('route') }}</dt><dd>Trayectoria on/off</dd></div><div><dt>{{ icon('clear') }}</dt><dd>Limpiar trayectoria</dd></div><div><dt>{{ icon('download') }}</dt><dd>Exportar registro CSV</dd></div><div><dt>{{ icon('flight') }}</dt><dd>Panel de vuelo</dd></div><div><dt>{{ icon('chart') }}</dt><dd>Panel de datos</dd></div><div><dt>{{ icon('map') }}</dt><dd>Herramientas del mapa</dd></div>
             </dl></details>
         </div>
         <section class="panel map-panel" id="map-tools" aria-labelledby="map-title">
@@ -94,6 +92,15 @@
             </div></details>
         </aside>
     </main>
+    <section class="panel ai-console" aria-labelledby="ai-title">
+        <form id="ai-form">
+            <div class="ai-heading"><label for="ai-message" id="ai-title">{{ icon('chat') }}<span>Asistente</span></label><span class="help">PoC · Solo texto</span></div>
+            <div class="ai-input-row"><input type="text" id="ai-message" maxlength="1500" placeholder="Ej.: sube a 100 metros de altura" autocomplete="off" disabled aria-describedby="ai-help ai-status">{{ action('ai-send', 'Enviar mensaje al asistente', 'send', false, true) }}</div>
+            <p id="ai-help" class="sr-only">Escribe una consulta a OpenAI. Esta prueba solo responde con texto y no ejecuta movimientos del dron. Cada mensaje es independiente.</p>
+            <p id="ai-status" class="help" role="status">Esperando conexión con el servicio.</p>
+        </form>
+        <div id="ai-response" class="ai-response" role="region" aria-label="Respuesta del asistente" tabindex="0" hidden><p id="ai-result"></p></div>
+    </section>
     <nav class="mobile-dock" aria-label="Paneles de vuelo">
         <button type="button" data-panel="flight" aria-label="Panel de vuelo" title="Vuelo" aria-controls="flight-controls" aria-expanded="true">{{ icon('flight') }}<span class="sr-only">Vuelo</span></button>
         <button type="button" data-panel="data" aria-label="Datos de vuelo" title="Datos" aria-controls="flight-information" aria-expanded="false">{{ icon('chart') }}<span class="sr-only">Datos</span></button>

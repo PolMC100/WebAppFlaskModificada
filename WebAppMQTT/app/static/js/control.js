@@ -20,6 +20,47 @@
     let speedEdited = false;
     let pendingSpeed = null;
     let speedFeedback = '';
+    let pendingAltitude = null;
+    let altitudeFeedback = '';
+    const newId = () => window.crypto.randomUUID?.()
+        || [...window.crypto.getRandomValues(new Uint8Array(16))].map(value => value.toString(16).padStart(2, '0')).join('');
+    const aiSession = newId();
+    const aiReplyTopic = `demoDash/mobileFlask/aiReply/${aiSession}`;
+    let pendingAI = null;
+    let aiFeedback = '';
+    let aiError = false;
+
+    function renderAI() {
+        byId('ai-message').disabled = !serviceReady || Boolean(pendingAI);
+        byId('ai-send').disabled = byId('ai-message').disabled || !byId('ai-message').value.trim();
+        actionLabel('ai-send', pendingAI ? 'Esperando respuesta…' : 'Enviar mensaje al asistente', Boolean(pendingAI));
+        byId('ai-status').textContent = aiFeedback || (serviceReady
+            ? 'Envía una consulta. No ejecuta movimientos.' : 'Esperando conexión con el servicio.');
+        byId('ai-status').dataset.error = String(aiError);
+    }
+
+    function receiveAI(message, packet) {
+        if (packet?.retain || !pendingAI) return;
+        let data;
+        try { data = JSON.parse(message.toString()); } catch { return; }
+        if (!data || data.id !== pendingAI.id || typeof data.text !== 'string'
+            || !['accepted', 'done', 'error'].includes(data.status)) return;
+        if (data.status === 'accepted') {
+            aiFeedback = 'Consultando OpenAI…';
+        } else {
+            pendingAI = null;
+            aiError = data.status === 'error';
+            aiFeedback = aiError ? data.text : 'Respuesta recibida · Solo texto.';
+            if (!aiError) {
+                // Mostrar texto, nunca interpretar HTML ni comandos generados por el modelo.
+                byId('ai-result').textContent = data.text;
+                byId('ai-response').hidden = false;
+                byId('ai-response').scrollTop = 0;
+                log('Respuesta del asistente recibida.');
+            }
+        }
+        renderAI();
+    }
 
     function speedLabel(value) { return `${number(value, 1)} m/s`; }
 
@@ -32,7 +73,7 @@
     }
 
     function renderSpeed(fresh) {
-        const allowed = fresh && ['connected', 'flying'].includes(state) && !pending;
+        const allowed = fresh && ['connected', 'flying'].includes(state) && !pending && !pendingAltitude;
         const selected = Number(byId('nav-speed').value);
         byId('nav-speed').disabled = !allowed || configuredSpeed === null || Boolean(pendingSpeed);
         byId('apply-speed').disabled = byId('nav-speed').disabled || selected === configuredSpeed;
@@ -93,20 +134,27 @@
     }
 
     function render() {
+        renderAI();
         const fresh = isFresh();
         const droneAvailable = fresh && state !== 'disconnected' && state !== 'connecting';
         const flying = droneAvailable && state === 'flying' && !pending;
         renderSpeed(fresh);
         byId('botonConectar').disabled = !serviceReady || droneAvailable || Boolean(pending);
-        actionLabel('botonConectar', pending?.kind === 'connect' ? 'Conectando…' : droneAvailable ? 'Dron conectado' : 'Conectar dron', pending?.kind === 'connect');
+        actionLabel('botonConectar', pending?.kind === 'connect' ? 'Conectando…' : droneAvailable ? 'Conectado' : 'Conectar', pending?.kind === 'connect');
         byId('botonDespegar').disabled = !droneAvailable || state !== 'connected' || Boolean(pending);
         const takingOff = pending?.kind === 'takeoff' || state === 'takingOff' || state === 'arming';
         actionLabel('botonDespegar', takingOff ? 'Despegando…' : 'Despegar', takingOff);
-        byId('altura').disabled = Boolean(pending) || (droneAvailable && state !== 'connected');
-        directions.forEach(button => { button.disabled = !flying; });
+        byId('altura').disabled = !flying || Boolean(pendingAltitude);
+        byId('apply-altitude').disabled = byId('altura').disabled || Boolean(pendingSpeed);
+        actionLabel('apply-altitude', pendingAltitude ? 'Aplicando altitud…' : 'Aplicar altitud', Boolean(pendingAltitude));
+        byId('altitude-status').textContent = pendingAltitude
+            ? `Alcanzando ${pendingAltitude.height} m…`
+            : !fresh ? 'Sin datos recientes.' : !flying ? 'Disponible en vuelo.'
+                : altitudeFeedback || 'Aplicar detiene el desplazamiento.';
+        directions.forEach(button => { button.disabled = !flying || (Boolean(pendingAltitude) && button.dataset.direction !== 'Stop'); });
         byId('botonAterrizar').disabled = !flying;
         const landing = pending?.kind === 'land' || state === 'landing';
-        actionLabel('botonAterrizar', landing ? 'Aterrizando…' : 'Aterrizar dron', landing);
+        actionLabel('botonAterrizar', landing ? 'Aterrizando…' : 'Aterrizar', landing);
         byId('controls-help').textContent = flying
             ? 'Control disponible. La selección permanece hasta la siguiente solicitud.'
             : !fresh ? 'Se necesita telemetría reciente para habilitar las acciones de vuelo.'
@@ -143,6 +191,8 @@
                 if (!error) return;
                 if (pending === operation) pending = null;
                 if (command === 'setNavSpeed') pendingSpeed = null;
+                if (command === 'setAltitude') pendingAltitude = null;
+                if (command === 'aiMessage') { pendingAI = null; aiFeedback = 'No se pudo enviar el mensaje.'; aiError = true; }
                 notice('No se pudo enviar la solicitud. Comprueba la conexión.', 'error');
                 log('Error al enviar una solicitud.');
                 selectDirection();
@@ -151,6 +201,8 @@
         } catch {
             if (pending === operation) pending = null;
             if (command === 'setNavSpeed') pendingSpeed = null;
+            if (command === 'setAltitude') pendingAltitude = null;
+            if (command === 'aiMessage') { pendingAI = null; aiFeedback = 'No se pudo enviar el mensaje.'; aiError = true; }
             notice('No se pudo enviar la solicitud. Comprueba la conexión.', 'error');
             render();
             return false;
@@ -184,6 +236,14 @@
         window.flightMap?.update(data);
         byId('flight-state').textContent = labels[state];
         byId('alt').textContent = number(data.alt, 1);
+        if (pendingAltitude && state === 'flying' && typeof data.alt === 'number' && Number.isFinite(data.alt)
+            && Math.abs(data.alt - pendingAltitude.height) < 0.5) {
+            altitudeFeedback = `✓ ${pendingAltitude.height} m alcanzados.`;
+            pendingAltitude = null;
+            notice(altitudeFeedback, 'success');
+            log(altitudeFeedback);
+        }
+        if (state !== 'flying') { pendingAltitude = null; altitudeFeedback = ''; }
         byId('speed').textContent = number(data.groundSpeed, 1, 0);
         configuredSpeed = typeof data.navSpeed === 'number' && Number.isFinite(data.navSpeed) && data.navSpeed >= 0.5 && data.navSpeed <= 5 ? data.navSpeed : null;
         if (pendingSpeed && configuredSpeed === pendingSpeed.speed) {
@@ -219,20 +279,53 @@
         render();
     }
 
+    byId('ai-message').addEventListener('input', renderAI);
+    byId('ai-form').addEventListener('submit', event => {
+        event.preventDefault();
+        if (byId('ai-send').disabled) return;
+        const text = byId('ai-message').value.trim();
+        if (!text || text.length > 1500) return;
+        pendingAI = { id: newId(), started: Date.now() };
+        aiFeedback = 'Enviando a la estación de tierra…';
+        aiError = false;
+        byId('ai-response').hidden = true;
+        if (!publish('aiMessage', JSON.stringify({ session: aiSession, id: pendingAI.id, text }), 'Consulta enviada al asistente.')) {
+            pendingAI = null;
+            aiFeedback = 'No se pudo enviar el mensaje. Comprueba la conexión.';
+            aiError = true;
+        }
+        renderAI();
+    });
     byId('botonConectar').addEventListener('click', () => {
         if (!byId('botonConectar').disabled) publish('connect', '', 'Conexión solicitada.', 'connect');
     });
     byId('takeoff-form').addEventListener('submit', event => {
         event.preventDefault();
+        if (!byId('botonDespegar').disabled) publish('arm_takeOff', '1', 'Despegue solicitado a 1 m.', 'takeoff');
+    });
+    byId('altitude-form').addEventListener('submit', event => {
+        event.preventDefault();
+        if (byId('apply-altitude').disabled) return;
         const input = byId('altura');
         const height = input.valueAsNumber;
         const valid = Number.isSafeInteger(height) && height > 0;
         byId('altitude-error').hidden = valid;
         input.setAttribute('aria-invalid', String(!valid));
         if (!valid) { byId('altitude-error').textContent = 'Introduce un número entero mayor que cero.'; input.focus(); return; }
-        if (!byId('botonDespegar').disabled) publish('arm_takeOff', String(height), `Despegue solicitado a ${height} m.`, 'takeoff');
+        altitudeFeedback = '';
+        pendingAltitude = { height, started: Date.now() };
+        if (publish('setAltitude', String(height), `Altitud solicitada: ${height} m. Desplazamiento horizontal detenido.`)) {
+            selectDirection();
+            notice(`Altitud solicitada: ${height} m. Esperando confirmación de la telemetría.`);
+        } else pendingAltitude = null;
+        render();
     });
-    byId('altura').addEventListener('input', () => { byId('altitude-error').hidden = true; byId('altura').removeAttribute('aria-invalid'); });
+    byId('altura').addEventListener('input', () => {
+        byId('altitude-error').hidden = true;
+        byId('altura').removeAttribute('aria-invalid');
+        altitudeFeedback = '';
+        render();
+    });
     byId('nav-speed').addEventListener('input', () => {
         speedEdited = true;
         speedFeedback = '';
@@ -249,12 +342,24 @@
         renderSpeed(isFresh());
     });
     byId('botonAterrizar').addEventListener('click', () => {
-        if (!byId('botonAterrizar').disabled && publish('Land', '', 'Aterrizaje solicitado.', 'land')) selectDirection();
+        if (!byId('botonAterrizar').disabled && publish('Land', '', 'Aterrizaje solicitado.', 'land')) {
+            pendingAltitude = null;
+            altitudeFeedback = '';
+            selectDirection();
+            render();
+        }
     });
     directions.forEach(button => button.addEventListener('click', () => {
         if (button.disabled) return;
         const direction = button.dataset.direction;
-        if (publish('go', direction, `Movimiento solicitado: ${button.lastElementChild.textContent}.`)) selectDirection(direction);
+        if (publish('go', direction, `Movimiento solicitado: ${button.lastElementChild.textContent}.`)) {
+            if (direction === 'Stop' && pendingAltitude) {
+                pendingAltitude = null;
+                altitudeFeedback = 'Cambio de altitud interrumpido.';
+            }
+            selectDirection(direction);
+            render();
+        }
     }));
     byId('export-log').addEventListener('click', () => {
         const quote = value => `"${String(value).replace(/"/g, '""')}"`;
@@ -273,9 +378,16 @@
     function serviceLost() {
         const wasReady = serviceReady;
         serviceReady = false;
+        if (pendingAI) {
+            pendingAI = null;
+            aiFeedback = 'Conexión perdida. La consulta no se reenviará automáticamente.';
+            aiError = true;
+        }
         telemetryValid = false;
         pending = null;
         pendingSpeed = null;
+        pendingAltitude = null;
+        altitudeFeedback = '';
         configuredSpeed = null;
         speedFeedback = '';
         selectDirection();
@@ -299,11 +411,11 @@
         return;
     }
     client.on('connect', () => {
-        client.subscribe('demoDash/mobileFlask/telemetryInfo', { qos: 0 }, (error, granted) => {
-            if (error || !granted?.length || granted.some(item => item.qos === 128)) {
+        client.subscribe(['demoDash/mobileFlask/telemetryInfo', aiReplyTopic], { qos: 0 }, (error, granted) => {
+            if (error || granted?.length !== 2 || granted.some(item => item.qos === 128)) {
                 serviceReady = false;
-                notice('No se pudo suscribir a la telemetría. Recarga la página para reintentar.', 'error');
-                byId('broker-status').textContent = 'Error al recibir telemetría';
+                notice('No se pudo suscribir al servicio MQTT. Recarga la página para reintentar.', 'error');
+                byId('broker-status').textContent = 'Error de suscripción MQTT';
                 render();
                 return;
             }
@@ -317,6 +429,7 @@
     });
     client.on('message', (topic, message, packet) => {
         if (topic === 'demoDash/mobileFlask/telemetryInfo' && serviceReady) receiveTelemetry(message, packet);
+        if (topic === aiReplyTopic && serviceReady) receiveAI(message, packet);
     });
     client.on('offline', serviceLost);
     client.on('close', serviceLost);
@@ -325,6 +438,17 @@
         notice('Error de comunicación con el servicio MQTT. Se reintentará la conexión.', 'error');
     });
     setInterval(() => {
+        if (pendingAI && Date.now() - pendingAI.started > 45000) {
+            pendingAI = null;
+            aiFeedback = 'Sin respuesta. Comprueba que la estación tiene activadas las peticiones externas.';
+            aiError = true;
+        }
+        if (pendingAltitude && Date.now() - pendingAltitude.started > 60000) {
+            pendingAltitude = null;
+            altitudeFeedback = 'Altitud sin confirmar.';
+            notice('No se ha confirmado la altitud. Revisa la telemetría antes de continuar.', 'warning');
+            log('No se ha confirmado el cambio de altitud dentro del plazo de espera.');
+        }
         if (pendingSpeed && Date.now() - pendingSpeed.started > 10000) {
             pendingSpeed = null;
             speedFeedback = 'Cambio sin confirmar. Comprueba la estación antes de volver a aplicarlo.';

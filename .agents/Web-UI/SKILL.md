@@ -67,15 +67,15 @@ Avoid pill shapes on every button, heavy gradients, decorative transparency, and
 Organize information into recognizable groups:
 
 1. **Header:** screen name and connection status.
-2. **Flight preparation:** altitude field and takeoff action.
-3. **Manual control:** directional grid, central stop action, and accessible landing action.
+2. **Unified flight panel:** connection, takeoff altitude and action, directional grid, speed selection, central stop action, and accessible landing action. Keep preparation controls visible within this same panel instead of a separate dropdown.
+3. **Flight controls:** separate related tasks with subtle spacing or a divider within the unified panel.
 4. **Flight data:** status, altitude, and other available measurements.
 
 Emphasize one primary action per group. Keep “Stop” easy to find and distinct from directional controls. Give “Land” a stable position and an icon clearly distinct from the central stop square. Provide its complete accessible name and a brief visible label or an accessible icon legend.
 
 The directional grid should retain its spatial arrangement of three rows and three columns. Use balanced sizes, uniform gaps, and understandable labels. A persistent selection should look different from the momentary pressed state of a button.
 
-On desktop, place compact flight controls at the left edge, telemetry at the right edge, and map tools near an available edge. These panels sit over the map with opaque surfaces and restrained shadows. Make preparation and activity details collapsible when they compete with the visible map. Preserve the 3 × 3 directional grid using arrow symbols and a central stop square. Keep direction names as accessible names and descriptive tooltips. Distinguish the landing icon from stopping movement.
+On desktop, place compact flight controls at the left edge, telemetry at the right edge, and map tools near an available edge. These panels sit over the map with opaque surfaces and restrained shadows. Keep preparation and manual flight controls together in one compact panel. Activity details and the icon legend may collapse when they compete with the visible map. Preserve the 3 × 3 directional grid using arrow symbols and a central stop square. Keep direction names as accessible names and descriptive tooltips. Distinguish the landing icon from stopping movement.
 
 ## Buttons and Fields
 
@@ -110,7 +110,7 @@ For telemetry, prioritize readable values and retain units. Keep latitude and lo
 
 Adaptation should rearrange elements while keeping primary actions available.
 
-- **Mobile:** keep the map as the background workspace. Use a bottom navigation bar to open one flight, telemetry, or map-tools panel at a time. Selecting the active panel again can hide it to free the map. Keep the directional grid and landing action together, and allow preparation details to collapse. Panels must scroll internally when content or enlarged text exceeds the available height.
+- **Mobile:** keep the map as the background workspace. Use a bottom navigation bar to open one flight, telemetry, or map-tools panel at a time. Selecting the active panel again can hide it to free the map. Keep preparation, the directional grid, speed selection, and landing in the same flight panel; do not hide preparation automatically when the drone takes off. Panels must scroll internally when content or enlarged text exceeds the available height.
 - **Tablet:** use edge panels when enough map area remains visible; otherwise use the same single-panel navigation as mobile. In short landscape views, a side panel can preserve more usable map area than a bottom panel.
 - **Desktop:** use the full viewport map with compact panels aligned to its edges. Keep the map interactive between panels, and bound panel heights with internal scrolling.
 

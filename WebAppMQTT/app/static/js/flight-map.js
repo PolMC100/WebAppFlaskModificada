@@ -36,7 +36,7 @@
 
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     try {
-        map = L.map(container, { scrollWheelZoom: false, zoomAnimation: !reducedMotion,
+        map = L.map(container, { scrollWheelZoom: true, zoomAnimation: !reducedMotion,
             fadeAnimation: !reducedMotion, markerZoomAnimation: !reducedMotion }).setView([20, 0], 2);
         const tiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
@@ -227,7 +227,7 @@
                 if (follow.checked) centerPosition();
             });
         });
-        [container, ...document.querySelectorAll('.page-header, #notice, .controls, .flight-data, #map-tools, .mobile-dock')]
+        [container, ...document.querySelectorAll('.page-header, #notice, .controls, .flight-data, #map-tools, .mobile-dock, .ai-console')]
             .forEach(element => observer.observe(element));
     }
     window.flightMap = { update, setAvailability };

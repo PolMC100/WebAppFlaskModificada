@@ -1,0 +1,5 @@
+# Credenciales locales (las plantillas sí se versionan).
+.env
+.env.*
+!.env.example
+__pycache__/

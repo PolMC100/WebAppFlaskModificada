@@ -1,4 +1,9 @@
 # WebAppFlask
+
+## Documentación de la aplicación actual
+
+La arquitectura, los módulos y los flujos de la versión actual están documentados en [docs/README.md](docs/README.md), con diagramas Mermaid de componentes, clases, secuencias y estados. Incluye interfaz web, MQTT, estación de tierra, DronLink, control de vuelo, mapa y asistente OpenAI.
+
 ## 1. Presentación
 En este repositorio se describe cómo controlar un dron desde cualquier dispositivo conectado a internet, sin necesidad de instalar ninguna app en el dispositivo. Para ello se utiliza el framework Flask para implementer un servidor web en Python.   
 El prepositorio proporciona códigos, vídeos y descripciones. También se proponen algunos retos que pueden ayudar a asentar los conceptos que se presentan.   

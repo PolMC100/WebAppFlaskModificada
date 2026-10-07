@@ -21,15 +21,38 @@
 .compact-workspace .icon-button { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; width: 44px; height: 44px; min-height: 44px; min-width: 44px; padding: 0; position: relative; }
 .compact-workspace .icon-button[aria-busy="true"]::after { content: ''; position: absolute; width: 8px; height: 8px; right: 3px; top: 3px; border-radius: 50%; background: #0891b2; border: 1px solid white; animation: pending-pulse 1s ease-in-out infinite alternate; }
 .compact-workspace .controls .primary { width: 44px; }
-.compact-workspace .takeoff-form { display: flex; align-items: end; gap: 6px; border: 0; margin: 0; padding: 0; flex-wrap: wrap; }
-.compact-workspace .altitude-field { flex: 1; min-width: 64px; }
-.compact-workspace .altitude-field label { font-size: 12px; margin: 0 0 4px; }
+.compact-workspace .takeoff-form { display: grid; grid-template-columns: minmax(0, 1fr); align-items: center; gap: 8px; border: 0; margin: 0; padding: 0; }
+.compact-workspace .unified-flight-panel .takeoff-form { padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+.compact-workspace .altitude-field { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.compact-workspace .altitude-field label { font-size: 12px; margin: 0; }
+.compact-workspace .altitude-field .input-unit { flex: 1; min-width: 0; }
+.compact-workspace .altitude-selector { margin-top: 8px; }
+.compact-workspace #altitude-status { font-size: 12px; margin: 4px 0 0; }
+.compact-workspace .takeoff-form .text-action, .compact-workspace .landing-row .text-action { width: 100%; min-width: 0; height: auto; min-height: 44px; gap: 8px; padding: 8px; font-size: 13px; grid-column: 1; grid-row: auto; }
+.compact-workspace .text-action .action-label { overflow-wrap: anywhere; }
 .compact-workspace .input-unit input { min-height: 44px; padding: 8px; font-size: 14px; }
 .compact-workspace .input-unit span { padding: 0 6px 0 0; font-size: 12px; }
 .compact-workspace .field-error { font-size: 12px; margin: 6px 0 0; flex-basis: 100%; }
 .compact-workspace .direction { gap: 4px; margin: 8px 0; }
 .compact-workspace .direction button { min-height: 44px; padding: 0; }
 .compact-workspace .direction button > span:first-child { font-size: 22px; }
+.compact-workspace .wind-rose { position: relative; display: block; width: 100%; max-width: 220px; min-width: 180px; aspect-ratio: 1; margin: 8px auto; border-radius: 50%; background: radial-gradient(circle, transparent 22%, var(--border) 22.5%, transparent 23.5%, transparent 69%, var(--border) 69.5%, transparent 70.5%); }
+.compact-workspace .wind-rose button { position: absolute; left: var(--rose-x, 50%); top: var(--rose-y, 50%); transform: translate(-50%, -50%); width: 44px; height: 44px; min-height: 44px; padding: 0; border-radius: 50%; gap: 0; }
+.compact-workspace .wind-rose .compass-direction { background: var(--surface); border-color: transparent; }
+.compact-workspace .wind-rose .compass-direction[aria-pressed="true"] { border-color: var(--blue); background: #eff6ff; }
+.compact-workspace .wind-rose .compass-direction:hover:not(:disabled) { border-color: var(--blue); background: #eff6ff; }
+.compact-workspace .wind-rose .compass-direction:disabled { background: var(--surface); border-color: transparent; }
+.compact-workspace .wind-rose .compass-needle { display: flex; align-items: center; justify-content: center; }
+.compact-workspace .wind-rose .compass-direction .ui-icon { width: 24px; height: 24px; transform: rotate(var(--rose-angle, 0deg)); }
+.compact-workspace .wind-rose .compass-bearing { font-size: 10px; line-height: 12px; font-weight: 600; }
+.compact-workspace .wind-rose [data-direction="North"] { --rose-x: 50%; --rose-y: 13%; }
+.compact-workspace .wind-rose [data-direction="NorthEast"] { --rose-x: 76%; --rose-y: 24%; --rose-angle: 45deg; }
+.compact-workspace .wind-rose [data-direction="East"] { --rose-x: 87%; --rose-y: 50%; --rose-angle: 90deg; }
+.compact-workspace .wind-rose [data-direction="SouthEast"] { --rose-x: 76%; --rose-y: 76%; --rose-angle: 135deg; }
+.compact-workspace .wind-rose [data-direction="South"] { --rose-x: 50%; --rose-y: 87%; --rose-angle: 180deg; }
+.compact-workspace .wind-rose [data-direction="SouthWest"] { --rose-x: 24%; --rose-y: 76%; --rose-angle: 225deg; }
+.compact-workspace .wind-rose [data-direction="West"] { --rose-x: 13%; --rose-y: 50%; --rose-angle: 270deg; }
+.compact-workspace .wind-rose [data-direction="NorthWest"] { --rose-x: 24%; --rose-y: 24%; --rose-angle: 315deg; }
 .compact-workspace .speed-selector { margin: 8px 0 0; padding-top: 8px; }
 .compact-workspace .speed-heading label { display: flex; align-items: center; gap: 4px; font-size: 12px; }
 .compact-workspace .speed-heading .ui-icon { width: 16px; height: 16px; }
@@ -39,7 +62,7 @@
 .compact-workspace .speed-input-row .icon-button { min-width: 44px; padding: 0; }
 .compact-workspace #speed-status { font-size: 12px; margin: 0; }
 .compact-workspace .landing-row { flex-direction: row; justify-content: space-between; align-items: center; margin: 8px 0 0; padding: 6px 0 0; }
-.compact-workspace .landing-row .button { width: 44px; }
+.compact-workspace .landing-row .action-label { white-space: nowrap; }
 .compact-workspace .landing-row > .help { font-size: 12px; }
 .compact-workspace .flight-state { padding: 8px; gap: 2px; }
 .compact-workspace .flight-state strong { font-size: 16px; }
@@ -70,12 +93,23 @@
 .compact-workspace .activity-log li { font-size: 12px; padding: 8px 0; gap: 8px; grid-template-columns: 58px minmax(0, 1fr); }
 .compact-workspace .mobile-dock { width: fit-content; max-width: 100%; }
 .compact-workspace .mobile-dock button { width: 52px; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
+.compact-workspace .shell { grid-template-rows: auto auto minmax(0, 1fr) auto auto; }
+.compact-workspace .ai-console { justify-self: center; width: min(100%, 640px); min-width: 0; max-height: 34dvh; overflow-y: auto; overscroll-behavior: contain; pointer-events: auto; }
+.compact-workspace .ai-heading { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 4px; }
+.compact-workspace .ai-heading label { display: flex; align-items: center; gap: 6px; margin: 0; font-size: 13px; }
+.compact-workspace .ai-heading .help { font-size: 11px; }
+.compact-workspace .ai-input-row { display: flex; align-items: center; gap: 6px; }
+.compact-workspace .ai-input-row input { flex: 1; min-width: 0; width: 100%; min-height: 44px; padding: 8px; font-size: 13px; }
+.compact-workspace #ai-status { margin: 4px 0 0; font-size: 11px; overflow-wrap: anywhere; }
+.compact-workspace #ai-status[data-error="true"] { color: #b91c1c; }
+.compact-workspace .ai-response { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); max-height: 120px; overflow-y: auto; overscroll-behavior: contain; }
+.compact-workspace .ai-response p { margin: 0; font-size: 13px; white-space: pre-wrap; overflow-wrap: anywhere; }
 @keyframes pending-pulse { from { opacity: .45; } to { opacity: 1; } }
 @media (max-width: 1023px) {
     .compact-workspace .shell { padding: max(8px, env(safe-area-inset-top)) 8px max(32px, env(safe-area-inset-bottom)); }
     .compact-workspace .dashboard { display: block; }
     .compact-workspace h1 { font-size: 16px; }
-    .compact-workspace .controls, .compact-workspace .flight-data { width: min(100%, 280px); max-height: min(56dvh, 440px); }
+    .compact-workspace .controls, .compact-workspace .flight-data { width: min(100%, 280px); max-height: min(56dvh, 440px, 100%); }
     .compact-workspace[data-mobile-panel="map"] .map-panel { width: fit-content; max-width: 100%; padding: 8px; }
     .compact-workspace .leaflet-top.leaflet-left { top: 112px; left: 2px; }
     .compact-workspace .direction button { min-height: 44px; }

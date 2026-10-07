@@ -4,6 +4,9 @@ import tkinter as tk
 from dronLink.Dron import Dron
 import random
 import paho.mqtt.client as mqtt
+from openai_assistant import OpenAIAssistant
+
+assistant = OpenAIAssistant()
 
 
 
@@ -21,8 +24,6 @@ def allowExternal ():
     client.connect(broker_address, broker_port)
     print('Conectado a broker.hivemq.com:8000')
 
-    # me subscribo a cualquier mensaje  que venga del mobileFlask
-    client.subscribe('mobileFlask/demoDash/#')
     print('demoDash esperando peticiones ')
     client.loop_start()
 
@@ -30,6 +31,8 @@ def allowExternal ():
 def on_connect(client, userdata, flags, rc):
     if rc == 0:
         print("connected OK Returned code=", rc)
+        # Suscribirse también después de una reconexión.
+        client.subscribe('mobileFlask/demoDash/#', qos=0)
     else:
         print("Bad connection Returned code=", rc)
 
@@ -54,8 +57,27 @@ def on_message(client, userdata, message):
         # mobileFlask/demoDash/comando
 
         parts = message.topic.split ('/')
+        if len(parts) != 3 or parts[:2] != ['mobileFlask', 'demoDash']:
+            return
         command = parts[2]
         print ('recibo ', command)
+        if command == 'aiMessage':
+            assistant.handle(client, message)
+            return
+        if command == 'setAltitude':
+            if message.retain or dron.state != 'flying':
+                return
+            try:
+                altitude = int(message.payload.decode('utf-8'))
+            except (ValueError, UnicodeDecodeError):
+                return
+            if altitude < 1:
+                return
+            # Paramos el Dron
+            dron.direction = 'Stop'
+            # Efectuamso el cambio de altitud
+            dron.change_altitude(altitude, blocking=False)
+            return
         if command == 'setNavSpeed':
             # Velocidad horizontal del control manual, expresada en m/s.
             if message.retain or dron.state not in ('connected', 'flying'):
@@ -81,13 +103,12 @@ def on_message(client, userdata, message):
 
 
         if command == 'arm_takeOff':
-            if dron.state == 'connected':
-                # recupero la altura a alcanzar, que viene como payload del mensaje
-                alt = int( message.payload.decode("utf-8"))
+            if not message.retain and dron.state == 'connected':
+                # El despegue inicial es siempre a un metro; la altitud se ajusta en vuelo.
                 dron.arm()
                 print ('armado')
                 # operación no bloqueante. Cuando acabe publicará el evento correspondiente
-                dron.takeOff(alt, blocking=False, callback=publish_event, params='flying')
+                dron.takeOff(1, blocking=False, callback=publish_event, params='flying')
 
         if command == 'go':
             if dron.state == 'flying':
